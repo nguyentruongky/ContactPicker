@@ -9,13 +9,13 @@
 import UIKit
 import AddressBook
 
-class Contact: NSObject {
+struct Contact {
     
     var name = ""
     var phone = ""
 }
 
-class ContactPickerIntention: NSObject, UISearchBarDelegate, UITableViewDelegate, UITableViewDataSource, UIActionSheetDelegate {
+class ContactPickerIntention: NSObject, UISearchBarDelegate, UITableViewDelegate, UITableViewDataSource {
 
     @IBOutlet weak var searchBar: UISearchBar!
     
@@ -139,7 +139,21 @@ class ContactPickerIntention: NSObject, UISearchBarDelegate, UITableViewDelegate
         
         return nameFirstChar
     }
+    
+    func getEmail(currentContact: ABRecordRef) -> String {
+        
+        let email:ABMultiValueRef = ABRecordCopyValue(currentContact, kABPersonEmailProperty).takeRetainedValue()
+        
+        var emailString = ""
+        
+        if ABMultiValueGetCount(email) > 0{
+        
+            emailString = ABMultiValueCopyValueAtIndex(email, 0).takeRetainedValue() as! String
+        }
 
+        return emailString
+    }
+    
     private func getPhoneNumbersFromContact(currentContact: ABRecordRef) -> [String]? {
         
         var phoneNumberList = [String]()
@@ -177,7 +191,7 @@ class ContactPickerIntention: NSObject, UISearchBarDelegate, UITableViewDelegate
     
     private func saveContactToGroupWithName(name: String, phone: String) {
         
-        let contactItem = Contact()
+        var contactItem = Contact()
         contactItem.name = name
         contactItem.phone = phone
         self.contactGroup.append(contactItem)
@@ -292,6 +306,8 @@ class ContactPickerIntention: NSObject, UISearchBarDelegate, UITableViewDelegate
         
         searchBar.resignFirstResponder()
     }
+    
+    
 }
 
 extension String {
